@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./static/style.css" />
+    <title>Kafka Producer</title>
+  </head>
+  <body>
+    <header>
+      <h1>Kafka Producer</h1>
+    </header>
+    <main>
+      <form method="POST" action="/api/newMessage">
+        <h3>Single message</h3>
+
+        <label>
+          <span>Topic:</span>
+
+          <select name="topic">
+            <option value="test-events">Test Events</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Key:</span>
+
+          <input type="text" name="key" />
+        </label>
+
+        <label>
+          <span>Payload:</span>
+
+          <textarea name="payload"></textarea>
+        </label>
+
+        <button>Send</button>
+      </form>
+
+      <aside>
+        <h3>Frequent messages</h3>
+
+        <label>
+          <span>Frequent events with JSON</span>
+          <input type="checkbox" id="frequent-events" />
+        </label>
+      </aside>
+    </main>
+    <footer>
+      <p>&copy; 2026 Andreas Schrottenbaum. All rights reserved.</p>
+    </footer>
+
+    <script>
+      const frequentEvents = document.getElementById("frequent-events");
+      let pollInterval = null;
+
+      frequentEvents.addEventListener("change", () => {
+        if (frequentEvents.checked) {
+          pollInterval = setInterval(() => {
+            fetch("/api/sendJSON", {
+              method: "POST",
+            });
+          }, 1000);
+        } else {
+          clearInterval(pollInterval);
+        }
+      });
+    </script>
+  </body>
+</html>
