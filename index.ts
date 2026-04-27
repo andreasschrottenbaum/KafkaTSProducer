@@ -1,57 +1,42 @@
-import { producer } from "./kafkaProducer";
+import { handleJSONMessage, handlePlaintextMessage } from "./controllers";
 
-let counter = 0;
-
+/**
+ * Main application entry point using Bun.serve.
+ * Configures the HTTP server, defines API routes, and manages static file serving.
+ */
 const server = Bun.serve({
-  routes: {
-    "/": Bun.file("./static/index.html"),
+  port: 3000,
 
-    "/api/newMessage": async (req) => {
-      await producer.connect();
+  /**
+   * Primary fetch handler for all incoming HTTP requests.
+   * Implements a simple router for API endpoints and a fallback for static assets.
+   * @param {Request} req - The incoming web request.
+   * @returns {Promise<Response>} The handled response (API, File, or 404).
+   */
+  async fetch(req) {
+    const url = new URL(req.url);
 
-      const data = await req.formData();
+    // --- API Routing ---
+    // Handle plaintext message production
+    if (url.pathname === "/api/newMessage" && req.method === "POST")
+      return handlePlaintextMessage(req);
 
-      const topic = data.get("topic")?.toString() || "";
-      const key = data.get("key")?.toString() || "";
-      const value = data.get("payload")?.toString() || "";
+    // Handle automated JSON user event production
+    if (url.pathname === "/api/sendJSON" && req.method === "POST")
+      return handleJSONMessage();
 
-      await producer.send({ topic, messages: [{ key, value }] });
+    // --- Static File Serving ---
+    // Default to index.html for root requests
+    let filePath = url.pathname === "/" ? "/index.html" : url.pathname;
+    const file = Bun.file(`./static${filePath}`);
 
-      return Response.redirect("/");
-    },
-    "/api/sendJSON": async () => {
-      const rndDateInt = Math.floor(Math.random() * new Date().getTime());
-      const rndDate = new Date(rndDateInt);
-
-      counter++;
-
-      const user = {
-        id: crypto.randomUUID(),
-        firstName: "Test Object",
-        lastName: counter.toString(),
-        birthDate: rndDate.toISOString().split("T")[0],
-        trustLevel: Math.floor(Math.random() * 10),
-        lastSeen: new Date().toISOString(),
-      };
-
-      await producer.connect();
-      await producer.send({
-        topic: "test-events",
-        messages: [{ key: "user", value: JSON.stringify(user) }],
-      });
-
-      return new Response("ok");
-    },
-  },
-
-  fetch(req) {
-    if (req.url.includes("/static/")) {
-      const filenameArr = req.url.split("/static/");
-
-      return new Response(Bun.file("./static/" + filenameArr[1]));
+    // Check for existence in the static directory to prevent 500 errors
+    if (await file.exists()) {
+      return new Response(file);
     }
 
-    return new Response("Not Found!");
+    // Fallback if no route or file matches
+    return new Response("File Not Found", { status: 404 });
   },
 });
 

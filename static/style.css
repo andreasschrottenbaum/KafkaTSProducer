@@ -23,6 +23,16 @@ header {
 main {
   display: flex;
   justify-content: space-evenly;
+  gap: 1em;
+
+  fieldset {
+    width: 100%;
+    padding-top: 1.5em;
+
+    legend {
+      font-weight: bold;
+    }
+  }
 
   label {
     display: block;
@@ -30,12 +40,12 @@ main {
 
     span {
       display: inline-block;
-      width: 10ch;
+      min-width: 10ch;
     }
   }
 
-  aside span {
-    width: 40ch;
+  input[type=text], textarea {
+    width: calc(100% - 15ch);
   }
 }
 

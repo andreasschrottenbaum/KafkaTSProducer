@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./static/style.css" />
+    <link rel="stylesheet" href="./style.css" />
     <title>Kafka Producer</title>
   </head>
   <body>
@@ -11,60 +11,39 @@
       <h1>Kafka Producer</h1>
     </header>
     <main>
-      <form method="POST" action="/api/newMessage">
-        <h3>Single message</h3>
+      <fieldset>
+        <legend>Single Message</legend>
 
-        <label>
-          <span>Topic:</span>
+        <form id="single-message-form">
+          <label>
+            <span>Key:</span>
 
-          <select name="topic">
-            <option value="test-events">Test Events</option>
-          </select>
-        </label>
+            <input type="text" name="key" />
+          </label>
 
-        <label>
-          <span>Key:</span>
+          <label>
+            <span>Payload:</span>
 
-          <input type="text" name="key" />
-        </label>
+            <textarea name="payload"></textarea>
+          </label>
 
-        <label>
-          <span>Payload:</span>
+          <button>Send</button>
+        </form>
+      </fieldset>
 
-          <textarea name="payload"></textarea>
-        </label>
-
-        <button>Send</button>
-      </form>
-
-      <aside>
-        <h3>Frequent messages</h3>
+      <fieldset>
+        <legend>Frequent messages</legend>
 
         <label>
           <span>Frequent events with JSON</span>
           <input type="checkbox" id="frequent-events" />
         </label>
-      </aside>
+      </fieldset>
     </main>
     <footer>
       <p>&copy; 2026 Andreas Schrottenbaum. All rights reserved.</p>
     </footer>
 
-    <script>
-      const frequentEvents = document.getElementById("frequent-events");
-      let pollInterval = null;
-
-      frequentEvents.addEventListener("change", () => {
-        if (frequentEvents.checked) {
-          pollInterval = setInterval(() => {
-            fetch("/api/sendJSON", {
-              method: "POST",
-            });
-          }, 1000);
-        } else {
-          clearInterval(pollInterval);
-        }
-      });
-    </script>
+    <script src="/client.js"></script>
   </body>
 </html>

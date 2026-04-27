@@ -9,9 +9,9 @@ This producer is designed to work in tandem with the [KafkaJavaConsumer](https:/
 ## Features
 
 - **High Performance**: Built on Bun's fast runtime.
-- **REST API**: Simple endpoints to trigger Kafka messages.
+- **REST API**: Simple endpoints to trigger Kafka messages via `fetch`.
 - **JSON Event Generation**: Automatically generates randomized `User` objects (matching the Java Record structure).
-- **Static Frontend**: Includes a basic UI to send messages directly from the browser.
+- **Static Frontend**: Includes a clean UI with `<fieldset>` groupings to send messages without page reloads.
 
 ## Prerequisites
 
@@ -20,11 +20,10 @@ This producer is designed to work in tandem with the [KafkaJavaConsumer](https:/
 
 ## Configuration
 
-The producer needs to know the location of your Kafka broker. Update the connection settings in `kafkaProducer.ts` (or the respective initialization file):
+The producer needs to know the location of your Kafka broker. Update the connection settings in `kafkaProducer.ts`:
 
 ```typescript
 const kafka = new Kafka({
-  clientId: "bun-producer",
   brokers: ["YOUR_KAFKA_IP:9092"],
 });
 ```
@@ -32,18 +31,21 @@ const kafka = new Kafka({
 ## Project Structure
 
 ```
-├── static
-│   └── index.html        // Frontend for manual testing
-├── index.ts              // Main entry point (Bun server & routes)
-├── kafkaProducer.ts      // KafkaJS client configuration
+├── static/
+│   ├── index.html       // Frontend UI
+│   ├── style.css        // Clean CSS Grid layout
+│   └── client.js        // Frontend logic (AJAX/Fetch)
+├── index.ts             // Main entry point & Native Bun Router
+├── controllers.ts       // HTTP Request Handling & Business Logic
+├── kafkaProducer.ts     // KafkaJS client configuration
 ├── package.json
 └── tsconfig.json
 ```
 
 ## API Endpoints
 
-- `POST /api/newMessage`: Sends a custom string payload to a specified topic.
-- `GET /api/sendJSON`: Generates a randomized User object (ID, names, birthDate, trustLevel, lastSeen) and sends it to the test-events topic.
+- `POST /api/newMessage`: Sends a custom string payload (FormData) to the `plaintext-events` topic.
+- `GET /api/sendJSON`: Generates a randomized User object and sends it to the `user-events` topic.
 
 ## Getting Started
 
@@ -57,7 +59,7 @@ const kafka = new Kafka({
    ```
 3. Access the UI at `http://localhost:3000` or trigger a JSON event via:
    ```bash
-   curl http://localhost:3000/api/sendJSON
+   curl -X POST http://localhost:3000/api/sendJSON
    ```
 
 ## License
